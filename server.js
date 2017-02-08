@@ -3,23 +3,15 @@ const bodyParser= require('body-parser');
 const app = express();
 const MongoClient = require('mongodb').MongoClient
 const mongo = require('mongodb');
+const whatwg = require('whatwg-fetch')
 const URL = 'mongodb://localhost:27017/mydatabase'
-
-var db;
+	var db;
 
 // using the body-parser to read the form data 
 app.use(bodyParser.urlencoded({extended:true}));
-app.set('view engine', 'ejs')
+app.set('view engine', 'ejs');
+app.use(express.static('public'));
 
-
-
-
-
-/*app.get('/', function(request,response){
-	//console.log("hi coming the get request");
-	response.sendFile(__dirname + '/index.html');
-	// Note: __dirname is directory that contains the JavaScript source code. 
-})*/
 
 app.post('/quotes', function(req,res){
 	console.log("hi",req.body);
@@ -36,7 +28,36 @@ app.get('/', (req, res) => {
   	console.log(results);
 	 res.render('index.ejs', {users: results})
 });
+});
+
+ // fetch and update request 
+app.put('/quotes', (req, res) => {
+	console.log("hi coming inside");
+  db.collection('users')
+  .findOneAndUpdate({_id:"589aa78fd599343bee5ce90b"}, {
+    $set: {
+      name: req.body.name,
+      quote: req.body.quote
+    }
+  }, {
+    sort: {_id: -1},
+    upsert: true
+  }, (err, result) => {
+    if (err) return res.send(err)
+    res.send(result)
+    console.log("result",result);
+  })
 })
+
+
+app.delete('/quotes', (req, res) => {
+  db.collection('users').findOneAndDelete({name: req.body.name},
+  (err, result) => {
+    if (err) return res.send(500, err)
+    res.send(' quote got deleted')
+  })
+})
+
 
 //connect to mongodb 
 MongoClient.connect(URL, function(err,database){
@@ -47,6 +68,9 @@ MongoClient.connect(URL, function(err,database){
 	   db = database;
 	}
 });
+
+
+
 
 
 
