@@ -77,5 +77,6 @@ MongoClient.connect(URL, function(err,database){
 // create the server to listen 
 app.listen(3000, function(){
 	console.log('listing to the server 3000');
+  console.log("testing the localhost")
 });
 
